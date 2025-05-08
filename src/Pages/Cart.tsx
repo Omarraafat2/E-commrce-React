@@ -46,9 +46,24 @@ function CartPage() {
   }
 
   const cart = data?.data;
-
   if (!cart || !cart.products || cart.products.length === 0) {
-    return <p className="text-center mt-10">Your cart is empty.</p>;
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[60vh] text-center px-4">
+        <img
+          src="/empty-cart.png"
+          alt="Empty Cart"
+          className="w-40 h-40 mb-6"
+        />
+        <h2 className="text-2xl font-semibold mb-2">Your cart is empty</h2>
+        <p className="text-gray-500 mb-4">Looks like you haven’t added anything to your cart yet.</p>
+        <a
+          href="/"
+          className="mt-2 px-5 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition"
+        >
+          Browse Products
+        </a>
+      </div>
+    );
   }
 
   return (
