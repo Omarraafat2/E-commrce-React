@@ -28,7 +28,7 @@ export default function Register() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-tr from-green-100 to-green-300 px-4">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-tr pt-5 from-green-100 to-green-300 px-4">
       <Formik
         initialValues={{ name: '', email: '', password: '', rePassword: '', phone: '' }}
         validationSchema={RegisterSchema}
