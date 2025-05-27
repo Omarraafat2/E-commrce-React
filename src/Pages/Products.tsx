@@ -1,16 +1,30 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useGetAllProductsQuery } from "../services/productsApi";
 import ProductCard from "../Components/ProductCard";
 import ProductCardSkeleton from "../Components/ui/ProductCardSkeleton";
 import { motion } from "framer-motion";
+import { usePrefetch } from "../services/productsApi";
 
 const Products = () => {
   const [page, setPage] = useState(1);
   const limit = 12;
 
   const { data, isLoading, isError } = useGetAllProductsQuery({ page, limit });
-
   const totalPages = data?.metadata?.numberOfPages || 1;
+
+  const prefetchProducts = usePrefetch("getAllProducts");
+
+  useEffect(() => {
+    // Prefetch الصفحة التالية لو لسه فيه صفحات
+    if (page < totalPages) {
+      prefetchProducts({ page: page + 1, limit }, { force: true });
+    }
+
+    // Prefetch الصفحة السابقة (اختياري)
+    if (page > 1) {
+      prefetchProducts({ page: page - 1, limit }, { force: true });
+    }
+  }, [page, totalPages, prefetchProducts, limit]);
 
   return (
     <div className="min-h-screen bg-gray-100 py-20 px-4">
@@ -41,7 +55,10 @@ const Products = () => {
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ delay: 0.05, duration: 0.3 }}
               >
-              <ProductCard product={product} category={product.category?.name} />
+                <ProductCard
+                  product={product}
+                  category={product.category?.name}
+                />
               </motion.div>
             ))}
       </div>

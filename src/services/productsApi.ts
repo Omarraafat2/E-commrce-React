@@ -38,4 +38,5 @@ export const {
   useGetAllProductsQuery,
   useGetSingleProductQuery,
   useGetProductsByCategoryQuery,
+  usePrefetch, // ✅ أضف هذا السطر
 } = productsApi;
