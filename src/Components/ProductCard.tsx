@@ -1,29 +1,40 @@
 import { Link } from "react-router-dom";
-import { memo, useCallback } from "react";
+import { memo, useCallback, useMemo } from "react";
 import { ShoppingCart, Heart } from "lucide-react";
 
 import { Product } from "../Interfaces/Product";
 import { formatPrice } from "../lib/utils";
 import { useProductActions } from "../hooks/useProductActions";
-import { useIsInWishlist } from "../hooks/useIsInWishlist";
 
 interface ProductCardProps {
   product: Product;
   category?: string;
+  wishlistData?: { _id: string }[];
 }
 
-function ProductCard({ product, category }: ProductCardProps) {
-  const { handleAddToCart, handleAddToWishlist } = useProductActions();
-  const isInWishlist = useIsInWishlist(product._id);
+function ProductCard({ product, category, wishlistData = [] }: ProductCardProps) {
+  const { handleAddToCart, handleToggleWishlist } = useProductActions();
+
+  const isInWishlist = useMemo(() => {
+    return wishlistData.some((item) => item._id === product._id);
+  }, [wishlistData, product._id]);
 
   const onAddToCart = useCallback(
-    (e: React.MouseEvent<HTMLButtonElement>) => handleAddToCart(product._id, e),
+    (e: React.MouseEvent<HTMLButtonElement>) => {
+      e.stopPropagation();
+      e.preventDefault();
+      handleAddToCart(product._id, e);
+    },
     [handleAddToCart, product._id]
   );
 
   const onAddToWishlist = useCallback(
-    (e: React.MouseEvent<HTMLButtonElement>) => handleAddToWishlist(product._id, e),
-    [handleAddToWishlist, product._id]
+    (e: React.MouseEvent<HTMLButtonElement>) => {
+      e.stopPropagation();
+      e.preventDefault();
+      handleToggleWishlist(product._id, isInWishlist, e);
+    },
+    [handleToggleWishlist, isInWishlist, product._id]
   );
 
   const categoryUrlPart = category ? `?category=${category}` : "";
@@ -53,13 +64,19 @@ function ProductCard({ product, category }: ProductCardProps) {
         </button>
         <button
           onClick={onAddToWishlist}
-          className={`w-10 h-10 flex items-center justify-center rounded-xl transition ${
-            isInWishlist
-              ? "bg-red-100 text-red-600"
-              : "bg-gray-100 text-red-500 hover:bg-red-100 hover:text-red-600"
-          }`}
+          aria-label="Toggle Wishlist"
+          className={`w-10 h-10 flex items-center justify-center rounded-xl transition-all duration-300
+            ${isInWishlist
+              ? "bg-red-100 text-red-600 scale-110 shadow-inner"
+              : "bg-gray-100 text-red-500 hover:bg-red-100 hover:text-red-600"}
+          `}
         >
-          <Heart size={18} />
+          <Heart
+            size={18}
+            className={`transition-transform duration-300 ${
+              isInWishlist ? "fill-red-600 scale-110" : "fill-transparent"
+            }`}
+          />
         </button>
       </div>
     </Link>

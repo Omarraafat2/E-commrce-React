@@ -4,22 +4,33 @@ import ProductCard from "./ProductCard";
 import { Skeleton } from "./ui/skeleton";
 import { Product } from "../Interfaces/Product";
 import { motion } from "framer-motion";
+import { useGetWishlistQuery } from "../features/wishlistApi/wishlistApi";
 
 const listVariants = {
   hidden: { opacity: 0 },
   visible: { opacity: 1, transition: { staggerChildren: 0.1 } },
 };
+
 const itemVariants = {
   hidden: { opacity: 0, y: 20 },
   visible: { opacity: 1, y: 0 },
 };
 
 export default function RecentProducts() {
-  const { categori } = useParams();  // Extract the category from the URL
+  const { categori } = useParams();
   const { data, isLoading, isError } = useGetAllProductsQuery(
-    { category: categori, limit: 8, sort: "-createdAt" }  // Fetch products based on category
+    { category: categori, limit: 8, sort: "-createdAt" }
   );
+
+  const { data: wishlistData } = useGetWishlistQuery(undefined, {
+    refetchOnMountOrArgChange: false,
+    refetchOnReconnect: false,
+    refetchOnFocus: false,
+    skip: !localStorage.getItem("token"),
+  });
+
   const products = data?.data || [];
+  const wishlistItems = wishlistData?.data || [];
 
   if (isLoading) {
     return (
@@ -48,7 +59,11 @@ export default function RecentProducts() {
     >
       {products.map((product: Product) => (
         <motion.div key={product._id} variants={itemVariants}>
-          <ProductCard product={product} category={product.category?.name} />
+          <ProductCard
+            product={product}
+            category={product.category?.name}
+            wishlistData={wishlistItems}
+          />
         </motion.div>
       ))}
     </motion.div>

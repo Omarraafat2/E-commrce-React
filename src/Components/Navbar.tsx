@@ -3,28 +3,16 @@ import { selectAuth, logout } from "../features/auth/authSlice";
 import { Link, useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faUserCircle, faBars, faXmark } from "@fortawesome/free-solid-svg-icons";
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect } from "react";
 import logo from "../assets/OmarLogo.png";
-import { ShoppingCart, Heart } from "lucide-react";
-import { useGetUserCartQuery } from "../features/cart/cartApi";
-import { useGetWishlistQuery } from "../features/wishlistApi/wishlistApi";
+import CartIcon from "./CartIcon";
+import WishlistIcon from "./WishlistIcon";
 
 const Navbar = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { token, user } = useSelector(selectAuth);
   const [menuOpen, setMenuOpen] = useState(false);
-
-  const { data: cartData } = useGetUserCartQuery(undefined, { skip: !token });
-  const { data: wishlistData } = useGetWishlistQuery(undefined, { skip: !token });
-
-  const totalItems = useMemo(() => {
-    return cartData?.data?.products?.reduce((acc, item) => acc + item.count, 0) || 0;
-  }, [cartData]);
-
-  const wishlistCount = useMemo(() => {
-    return wishlistData?.data?.length || 0;
-  }, [wishlistData]);
 
   const handleLogout = () => {
     dispatch(logout());
@@ -38,33 +26,11 @@ const Navbar = () => {
     document.body.style.overflow = menuOpen ? "hidden" : "auto";
   }, [menuOpen]);
 
-  const CartIcon = (
-    <Link to="/cart" className="relative group">
-      <ShoppingCart className="w-7 h-7 text-gray-600 group-hover:text-blue-600 transition" />
-      {totalItems > 0 && (
-        <span className="absolute -top-2 -right-3 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold">
-          {totalItems}
-        </span>
-      )}
-    </Link>
-  );
-
-  const WishlistIcon = (
-    <Link to="/wishlist" className="relative group">
-      <Heart className="w-7 h-7 text-gray-600 group-hover:text-red-500 transition" />
-      {wishlistCount > 0 && (
-        <span className="absolute -top-2 -right-3 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold">
-          {wishlistCount}
-        </span>
-      )}
-    </Link>
-  );
-
   const renderAuthLinks = (isMobile = false) => (
     <div className={`flex ${isMobile ? "flex-col space-y-4" : "items-center space-x-6"}`}>
       <div className={`flex ${isMobile ? "space-x-6" : "space-x-4"} mb-2`}>
-        {CartIcon}
-        {WishlistIcon}
+        <CartIcon />
+        <WishlistIcon />
       </div>
       <Link to="/home" className="text-gray-700 hover:text-blue-600 font-medium transition" onClick={() => setMenuOpen(false)}>
         Home
